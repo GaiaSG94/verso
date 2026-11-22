@@ -46,7 +46,7 @@ export default function JournalScreen() {
           <Text style={styles.title}>Journal</Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Changer de mois"
+            accessibilityLabel="Change month"
             onPress={() => setMonthOffset((value) => value + 1)}
             style={styles.monthSelector}
           >
@@ -56,13 +56,13 @@ export default function JournalScreen() {
         </View>
 
         <Card dark style={styles.hero}>
-          <Text style={styles.heroLabel}>CO₂e évité ce mois-ci</Text>
+          <Text style={styles.heroLabel}>CO₂e avoided this month</Text>
           <View style={styles.heroFigure}>
             <Text style={styles.heroValue}>{kg(avoided, 1)}</Text>
             <Text style={styles.heroUnit}>kg</Text>
           </View>
           <Text style={styles.heroEquivalent}>
-            ≈ {nombre(kmVoiture(avoided))} km en voiture non parcourus
+            ≈ {nombre(kmVoiture(avoided))} km by car not travelled
           </Text>
           <View style={styles.weekChart}>
             {weekly.map((value, index) => {
@@ -71,14 +71,14 @@ export default function JournalScreen() {
                 <View key={index} style={styles.weekColumn}>
                   <View
                     accessible
-                    accessibilityLabel={`Semaine ${index + 1} : ${kg(value)} kilogrammes évités`}
+                    accessibilityLabel={`Week ${index + 1}: ${kg(value)} kilograms avoided`}
                     style={[
                       styles.weekBar,
                       { height: Math.max((value / maxWeek) * 66, 8) },
                       active ? styles.weekBarCurrent : styles.weekBarPast,
                     ]}
                   />
-                  <Text style={[styles.weekLabel, active && styles.weekLabelCurrent]}>S{index + 1}</Text>
+                  <Text style={[styles.weekLabel, active && styles.weekLabelCurrent]}>W{index + 1}</Text>
                 </View>
               );
             })}
@@ -88,16 +88,16 @@ export default function JournalScreen() {
         <View style={styles.counters}>
           <Card style={styles.counter}>
             <Text style={styles.counterValue}>{nombre(entries.length)}</Text>
-            <Text style={styles.counterLabel}>objets scannés</Text>
+            <Text style={styles.counterLabel}>objects scanned</Text>
           </Card>
           <Card style={styles.counter}>
             <Text style={styles.counterValue}>{nombre(goodDeeds)}</Text>
-            <Text style={styles.counterLabel}>bons gestes</Text>
+            <Text style={styles.counterLabel}>good deeds</Text>
           </Card>
         </View>
 
         <View style={styles.spacer} />
-        <Text style={styles.sectionTitle}>Derniers scans</Text>
+        <Text style={styles.sectionTitle}>Recent scans</Text>
         <Card style={styles.scanList}>
           {entries.map((entry, index) => (
             <View
@@ -119,7 +119,7 @@ export default function JournalScreen() {
               </View>
               {entry.bonGeste ? (
                 <View style={styles.badge}>
-                  <Text style={styles.badgeText}>Bon geste</Text>
+                  <Text style={styles.badgeText}>Good deed</Text>
                 </View>
               ) : null}
             </View>

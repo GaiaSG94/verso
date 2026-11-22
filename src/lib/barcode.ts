@@ -43,8 +43,8 @@ function mapProduct(product: Record<string, unknown>, code: string): ProductInfo
   if (text.includes('eau') || text.includes('water') || text.includes('boisson')) {
     return {
       nom,
-      categorie: 'Contenant',
-      matiere_principale: 'Plastique PET',
+      categorie: 'Container',
+      matiere_principale: 'PET plastic',
       poids_estime_g: Math.round(quantite * 1.05),
       code,
       source,
@@ -53,8 +53,8 @@ function mapProduct(product: Record<string, unknown>, code: string): ProductInfo
   if (text.includes('verre') || text.includes('bocal') || text.includes('jar')) {
     return {
       nom,
-      categorie: 'Contenant',
-      matiere_principale: 'Verre',
+      categorie: 'Container',
+      matiere_principale: 'Glass',
       poids_estime_g: 350,
       code,
       source,

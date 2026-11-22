@@ -28,7 +28,7 @@ const seedEntry: ScanEntry = {
   categorie: sampleDetection.categorie,
   grade: seedImpact.grade,
   co2e_kg: seedImpact.impact.co2e_kg,
-  action: 'Scan de démonstration',
+  action: 'Demo scan',
   bonGeste: false,
   co2eEviteKg: 0,
 };

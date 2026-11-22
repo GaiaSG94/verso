@@ -26,14 +26,14 @@ import { colors, font, gradeLabels, radius, space } from '@/theme';
 import type { Detection, ScanMode } from '@/types';
 
 const modes: { key: ScanMode; label: string }[] = [
-  { key: 'objet', label: 'Objet' },
-  { key: 'code-barres', label: 'Code-barres' },
-  { key: 'etiquette', label: 'Étiquette' },
+  { key: 'object', label: 'Object' },
+  { key: 'barcode', label: 'Barcode' },
+  { key: 'label', label: 'Label' },
 ];
 
 export default function ScannerScreen() {
   const { detection, impact, setDetection, recordScan } = useApp();
-  const [mode, setMode] = useState<ScanMode>('objet');
+  const [mode, setMode] = useState<ScanMode>('object');
   const [flash, setFlash] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -65,7 +65,7 @@ export default function ScannerScreen() {
       recordScan(found, resolveImpact(found));
       if (found.confiance < 0.6) setCorrectionOpen(true);
     } catch {
-      setError('Reconnaissance indisponible. Vérifiez le backend et réessayez.');
+      setError('Recognition unavailable. Check the backend and try again.');
     } finally {
       setBusy(false);
     }
@@ -77,8 +77,8 @@ export default function ScannerScreen() {
       lastCode.current = data;
       const product = await lookupBarcode(data);
       if (!product) {
-        setMode('objet');
-        setError('Produit inconnu : prenez une photo de l’objet.');
+        setMode('object');
+        setError('Unknown product: take a photo of the object.');
         return;
       }
       const found: Detection = {
@@ -87,8 +87,8 @@ export default function ScannerScreen() {
         matiere_principale: product.matiere_principale,
         poids_estime_g: product.poids_estime_g,
         confiance: 1,
-        etat_apparent: 'neuf',
-        origine: 'code-barres',
+        etat_apparent: 'new',
+        origine: 'barcode',
         code_barres: product.code,
       };
       recordScan(found, resolveImpact(found));
@@ -106,11 +106,11 @@ export default function ScannerScreen() {
             facing="back"
             enableTorch={flash}
             barcodeScannerSettings={
-              mode === 'code-barres'
+              mode === 'barcode'
                 ? { barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128'] }
                 : undefined
             }
-            onBarcodeScanned={mode === 'code-barres' ? handleBarcode : undefined}
+            onBarcodeScanned={mode === 'barcode' ? handleBarcode : undefined}
           />
         ) : (
           <View style={styles.backdrop} />
@@ -118,11 +118,11 @@ export default function ScannerScreen() {
         {permission && !permission.granted ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Autoriser l'accès à la caméra"
+            accessibilityLabel="Allow camera access"
             onPress={requestPermission}
             style={styles.permissionButton}
           >
-            <Text style={styles.permissionText}>Autoriser la caméra</Text>
+            <Text style={styles.permissionText}>Allow camera</Text>
           </Pressable>
         ) : null}
         <SafeAreaView edges={['top']} style={styles.topSafe}>
@@ -134,7 +134,7 @@ export default function ScannerScreen() {
             <View style={styles.topActions}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={flash ? 'Éteindre le flash' : 'Allumer le flash'}
+                accessibilityLabel={flash ? 'Turn off flash' : 'Turn on flash'}
                 onPress={() => setFlash((v) => !v)}
                 style={[styles.iconButton, flash && styles.iconButtonActive]}
               >
@@ -142,7 +142,7 @@ export default function ScannerScreen() {
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Ouvrir le journal"
+                accessibilityLabel="Open journal"
                 onPress={() => router.push('/journal')}
                 style={styles.iconButton}
               >
@@ -173,7 +173,7 @@ export default function ScannerScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Prendre une photo et reconnaître l'objet"
+          accessibilityLabel="Take a photo and recognize the object"
           onPress={capture}
           disabled={busy || !permission?.granted}
           style={styles.shutter}
@@ -186,9 +186,9 @@ export default function ScannerScreen() {
         <View style={styles.sheet}>
           <View style={styles.dragHandle} />
           <View style={styles.sheetHead}>
-            <Text style={styles.eyebrow}>Objet reconnu</Text>
+            <Text style={styles.eyebrow}>Object recognized</Text>
             <Text style={styles.confidence}>
-              {Math.round(detection.confiance * 100)} % de confiance
+              {Math.round(detection.confiance * 100)} % confidence
             </Text>
           </View>
           <Text style={styles.objectName}>{detection.objet}</Text>
@@ -199,7 +199,7 @@ export default function ScannerScreen() {
             <GradeBadge grade={impact.grade} size={48} />
             <View style={styles.miniCardBody}>
               <Text style={styles.miniTitle}>{gradeLabels[impact.grade]}</Text>
-              <Text style={styles.miniSub}>pour un {detection.categorie.toLowerCase().replace(/s$/, '')}</Text>
+              <Text style={styles.miniSub}>for a {detection.categorie.toLowerCase().replace(/s$/, '')}</Text>
               <SourceNote text={impact.impact.source_co2e} />
             </View>
             <View style={styles.miniRight}>
@@ -208,13 +208,13 @@ export default function ScannerScreen() {
             </View>
           </View>
           <Button
-            label="Voir l'impact complet"
+            label="View full impact"
             onPress={() => router.push('/impact')}
-            accessibilityLabel="Voir l'impact complet de l'objet reconnu"
+            accessibilityLabel="View full impact of the recognized object"
           />
           <View style={styles.linkRow}>
             <TextLink
-              label={detection.confiance < 0.6 ? 'Ce n’est pas ça ? Corriger en premier' : 'Ce n’est pas ça ? Corriger l’objet'}
+              label={detection.confiance < 0.6 ? 'Not this? Correct first' : 'Not this? Correct the object'}
               onPress={() => setCorrectionOpen(true)}
             />
           </View>
@@ -240,7 +240,7 @@ function DetectionFrame({ detection }: { detection: Detection }) {
   const label = `${detection.objet} · ${detection.matiere_principale.toLowerCase()}`;
   const confidence = `${Math.round(detection.confiance * 100)} %`;
   return (
-    <View accessible accessibilityLabel={`Objet détecté : ${label}`} style={styles.frameWrap}>
+    <View accessible accessibilityLabel={`Object detected: ${label}`} style={styles.frameWrap}>
       <View style={styles.frameLabel}>
         <Text style={styles.frameLabelText}>{label}</Text>
         <Text style={styles.frameLabelConfidence}>{confidence}</Text>
@@ -267,26 +267,26 @@ function CorrectionSheet({
   onClose: () => void;
   onPick: (detection: Detection) => void;
 }) {
-  const [objet, setObjet] = useState(detection?.objet ?? '');
+  const [objectName, setObjet] = useState(detection?.objet ?? '');
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalBackdrop}>
         <View style={styles.modalCard}>
-          <Text style={styles.modalTitle}>Corriger l’objet</Text>
-          <Text style={styles.modalHint}>Choisissez une suggestion ou saisissez le bon nom.</Text>
+          <Text style={styles.modalTitle}>Correct the object</Text>
+          <Text style={styles.modalHint}>Choose a suggestion or enter the correct name.</Text>
           <TextInput
-            accessibilityLabel="Nom de l'objet"
+            accessibilityLabel="Object name"
             style={styles.input}
-            value={objet}
+            value={objectName}
             onChangeText={setObjet}
-            placeholder="Nom de l’objet"
+            placeholder="Object name"
           />
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.suggestions}>
-            {['T-shirt en coton', 'Gourde en inox', 'Bocal en verre'].map((name) => (
+            {['Cotton T-shirt', 'Stainless steel bottle', 'Glass jar'].map((name) => (
               <Pressable
                 key={name}
                 accessibilityRole="button"
-                accessibilityLabel={`Corriger vers ${name}`}
+                accessibilityLabel={`Correct to ${name}`}
                 onPress={() => setObjet(name)}
                 style={styles.suggestion}
               >
@@ -295,14 +295,14 @@ function CorrectionSheet({
             ))}
           </ScrollView>
           <Button
-            label="Valider la correction"
+            label="Confirm correction"
             variant="lime"
             onPress={() =>
               detection &&
-              onPick({ ...detection, objet: objet || detection.objet, confiance: 1, origine: 'correction' })
+              onPick({ ...detection, objet: objectName || detection.objet, confiance: 1, origine: 'correction' })
             }
           />
-          <TextLink label="Annuler" onPress={onClose} />
+          <TextLink label="Cancel" onPress={onClose} />
         </View>
       </View>
     </Modal>

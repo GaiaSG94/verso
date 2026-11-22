@@ -13,13 +13,13 @@ interface RawDetection {
 function clean(raw: RawDetection): Detection {
   const etat = raw.etat_apparent;
   return {
-    objet: String(raw.objet ?? 'Objet non identifié').slice(0, 80),
-    categorie: String(raw.categorie ?? 'Autre').slice(0, 40),
-    matiere_principale: String(raw.matiere_principale ?? 'inconnue').slice(0, 50),
+    objet: String(raw.objet ?? 'Unidentified object').slice(0, 80),
+    categorie: String(raw.categorie ?? 'Other').slice(0, 40),
+    matiere_principale: String(raw.matiere_principale ?? 'unknown').slice(0, 50),
     poids_estime_g: Number(raw.poids_estime_g) || 100,
     confiance: Math.min(Math.max(Number(raw.confiance) || 0, 0), 1),
     etat_apparent:
-      etat === 'neuf' || etat === 'usé' || etat === 'abîmé' ? etat : 'usé',
+      etat === 'new' || etat === 'worn' || etat === 'damaged' ? etat : 'worn',
     origine: 'photo',
   };
 }

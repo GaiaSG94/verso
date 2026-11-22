@@ -2,7 +2,9 @@ name = "verso-recognition"
 main = "src/index.ts"
 compatibility_date = "2026-11-01"
 
-# ANTHROPIC_API_KEY est fourni par wrangler secret put / variable d'environnement.
-# Jamais de valeur dans ce fichier, ni dans le dépôt.
 [vars]
-ANTHROPIC_MODEL = "claude-sonnet-5-5"
+INFERHUB_MODEL = "combo/cheap"
+INFERHUB_BASE_URL = "https://api.inferhub.dev/v1"
+
+# In production: npx wrangler secret put INFERHUB_API_KEY (never put a value here).
+# Locally on this PC: the 127.0.0.1:18100 router already injects its key, no secret to set.

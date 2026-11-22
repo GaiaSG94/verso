@@ -35,14 +35,14 @@ export function findEntry(detection: Detection): ImpactEntry {
 
 function lifecycle(entry: ImpactEntry): LifecycleStage[] {
   if (!entry.cycle) {
-    return [{ key: 'matiere', label: 'Non détaillé', kgCo2e: entry.co2e_kg }];
+    return [{ key: 'matiere', label: 'Not detailed', kgCo2e: entry.co2e_kg }];
   }
   const labels: Record<string, string> = {
-    matiere: 'Matière',
-    fabrication: 'Fabrication',
-    usage: 'Usage',
+    matiere: 'Material',
+    fabrication: 'Manufacturing',
+    usage: 'Use',
     transport: 'Transport',
-    fin_de_vie: 'Fin de vie',
+    fin_de_vie: 'End of life',
   };
   return (Object.keys(entry.cycle) as (keyof typeof entry.cycle)[]).map((key) => ({
     key: key === 'fin_de_vie' ? 'fin-de-vie' : key,
@@ -59,7 +59,7 @@ function impactRecord(entry: ImpactEntry): ImpactRecord {
     fin_de_vie: entry.fin_de_vie,
     lifecycle: lifecycle(entry),
     source_co2e: entry.source_co2e,
-    source_eau: entry.source_eau ?? 'Donnée non publiée dans nos sources',
+    source_eau: entry.source_eau ?? 'Data not published in our sources',
     source_fin_de_vie: entry.source_fin_de_vie,
     source_url: entry.source_url,
   };
@@ -69,16 +69,16 @@ function builtInAlternatives(current: ImpactEntry): Alternative[] {
   const valeur = current.co2e_kg;
   return [
     {
-      nom: 'Le garder plus longtemps',
-      description: 'Prolonger la durée de vie évite un achat neuf',
+      nom: 'Keep it longer',
+      description: 'Extending the lifespan avoids a new purchase',
       co2e_kg: Math.round(valeur * (1 - AVOIDED_RATES.garder) * 100) / 100,
-      source: 'Règle CO₂e évité documentée dans le README (taux 30 %)',
+      source: 'Avoided CO₂e rule documented in the README (30% rate)',
     },
     {
-      nom: 'Acheter d’occasion',
-      description: 'Fabrication non réattribuée à ce geste',
+      nom: 'Buy second-hand',
+      description: 'Manufacturing not reallocated to this action',
       co2e_kg: Math.round(valeur * (1 - AVOIDED_RATES.secondeMain) * 100) / 100,
-      source: 'Règle CO₂e évité documentée dans le README (taux 85 %)',
+      source: 'Avoided CO₂e rule documented in the README (85% rate)',
     },
   ];
 }
@@ -90,7 +90,7 @@ function sourcedAlternatives(current: ImpactEntry): Alternative[] {
     .slice(0, 2)
     .map((entry) => ({
       nom: entry.nom,
-      description: `Même catégorie · ${kg(entry.co2e_kg)} kg CO₂e`,
+      description: `Same category · ${kg(entry.co2e_kg)} kg CO₂e`,
       co2e_kg: entry.co2e_kg,
       source: entry.source_co2e,
     }));
@@ -115,13 +115,14 @@ export function resolveImpact(detection: Detection): ImpactView {
     alternatives,
     meilleurChoix,
     gain_pct: gain,
-    comparaison: `Comparé aux autres ${categorie.toLowerCase()}`,
+    comparaison: `Compared to other ${categorie.toLowerCase()}`,
   };
 }
 
 export function actionAvoided(action: string, co2eNeuf: number): number {
-  if (action.includes('garder')) return avoidedCo2e(co2eNeuf, 'garder');
-  if (action.includes('donner') || action.includes('revendre')) return avoidedCo2e(co2eNeuf, 'donner');
-  if (action.includes('déposer') || action.includes('collecte')) return avoidedCo2e(co2eNeuf, 'deposer');
+  const text = action.toLowerCase();
+  if (text.includes('keep')) return avoidedCo2e(co2eNeuf, 'garder');
+  if (text.includes('give') || text.includes('resell')) return avoidedCo2e(co2eNeuf, 'donner');
+  if (text.includes('drop') || text.includes('collection')) return avoidedCo2e(co2eNeuf, 'deposer');
   return 0;
 }

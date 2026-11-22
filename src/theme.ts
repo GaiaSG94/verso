@@ -50,9 +50,9 @@ export const space = {
 export const tap = { minHeight: 44, pillHeight: 52 } as const;
 
 export const gradeLabels = {
-  A: 'Impact très faible',
-  B: 'Impact faible',
-  C: 'Impact modéré',
-  D: 'Impact élevé',
-  E: 'Impact très élevé',
+  A: 'Very low impact',
+  B: 'Low impact',
+  C: 'Moderate impact',
+  D: 'High impact',
+  E: 'Very high impact',
 } as const;

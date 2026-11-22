@@ -41,3 +41,8 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# local dev vars
+.dev.vars
+/worker/.wrangler/
+

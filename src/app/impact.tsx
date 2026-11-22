@@ -18,12 +18,12 @@ export default function ImpactScreen() {
 
   const share = () =>
     Share.share({
-      message: `${detection.objet} : ${kg(co2e_kg)} kg CO₂e, note ${impact.grade}. Estimations ADEME via Verso.`,
+      message: `${detection.objet}: ${kg(co2e_kg)} kg CO₂e, grade ${impact.grade}. ADEME estimates via Verso.`,
     });
 
   return (
     <View style={styles.root}>
-      <ScreenHeader title="Impact environnemental" share onShare={share} />
+      <ScreenHeader title="Environmental impact" share onShare={share} />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <Card style={styles.hero}>
           <View style={styles.thumb}>
@@ -48,34 +48,34 @@ export default function ImpactScreen() {
           <GradeScale current={impact.grade} />
         </Card>
 
-        <SectionTitle>En chiffres</SectionTitle>
+        <SectionTitle>In numbers</SectionTitle>
         <View style={styles.grid}>
           <MetricCard
             icon={<Shirt size={18} color={colors.ink} />}
-            label="Carbone"
+            label="Carbon"
             value={`${kg(co2e_kg)} kg`}
             unit="CO₂e"
-            detail={`≈ ${nombre(kmVoiture(co2e_kg))} km en voiture`}
+            detail={`≈ ${nombre(kmVoiture(co2e_kg))} km by car`}
           />
           <MetricCard
             icon={<Droplets size={18} color={colors.ink} />}
-            label="Eau"
+            label="Water"
             value={eau_l === null ? '—' : nombre(eau_l)}
             unit={eau_l === null ? '' : 'L'}
-            detail={eau_l === null ? 'Donnée non disponible' : `≈ ${nombre(nombreDouches(eau_l))} douches`}
+            detail={eau_l === null ? 'Data unavailable' : `≈ ${nombre(nombreDouches(eau_l))} showers`}
           />
           <MetricCard
             icon={<Package size={18} color={colors.ink} />}
-            label="Matière"
+            label="Material"
             value={detection.matiere_principale}
             unit=""
-            detail={`${nombre(matiere_kg * 1000)} g estimés`}
+            detail={`${nombre(matiere_kg * 1000)} g estimated`}
             textValue
           />
           <MetricCard
             icon={<Recycle size={18} color={colors.ink} />}
-            label="Fin de vie"
-            value="Borne textile"
+            label="End of life"
+            value="Textile collection point"
             unit=""
             detail={impact.impact.fin_de_vie}
             textValue
@@ -84,7 +84,7 @@ export default function ImpactScreen() {
         <SourceNote text={`${impact.impact.source_co2e} ; ${impact.impact.source_eau}`} />
 
         <View style={styles.spacer} />
-        <SectionTitle>Où va le carbone ?</SectionTitle>
+        <SectionTitle>Where does the carbon go?</SectionTitle>
         <Card>
           <LifecycleBar stages={impact.impact.lifecycle} total={co2e_kg} />
         </Card>
@@ -94,10 +94,10 @@ export default function ImpactScreen() {
         <View style={styles.actionsRow}>
           <View style={styles.actionHalf}>
             <Button
-              label="Comment le jeter"
+              label="How to dispose of it"
               variant="outline"
               onPress={() => router.push('/fin-de-vie')}
-              accessibilityLabel="Voir comment jeter cet objet"
+              accessibilityLabel="See how to dispose of this object"
             />
           </View>
           <View style={styles.actionHalf}>
@@ -105,7 +105,7 @@ export default function ImpactScreen() {
           </View>
         </View>
         <Text style={styles.footerSource}>
-          Estimation moyenne · source : {impact.impact.source_co2e}
+          Average estimate · source: {impact.impact.source_co2e}
         </Text>
       </ScrollView>
     </View>
@@ -157,7 +157,7 @@ function LifecycleBar({
           <View
             key={stage.key}
             accessible
-            accessibilityLabel={`${stage.label} : ${kg(stage.kgCo2e)} kg CO₂e`}
+            accessibilityLabel={`${stage.label}: ${kg(stage.kgCo2e)} kg CO₂e`}
             style={{
               width: `${(stage.kgCo2e / total) * 100}%`,
               height: 22,

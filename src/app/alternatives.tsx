@@ -26,7 +26,7 @@ export default function AlternativesScreen() {
 
   const choose = () => {
     recordGoodDeed(
-      `Alternative : ${impact.meilleurChoix.nom}`,
+      `Alternative: ${impact.meilleurChoix.nom}`,
       avoidedCo2e(current, 'secondeMain'),
     );
     router.push('/fin-de-vie');
@@ -37,15 +37,15 @@ export default function AlternativesScreen() {
       <ScreenHeader title="Alternatives" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.titleBlock}>
-          <Text style={styles.title}>Même usage, moins d’impact</Text>
-          <Text style={styles.subtitle}>Carbone pour un objet équivalent.</Text>
+          <Text style={styles.title}>Same use, less impact</Text>
+          <Text style={styles.subtitle}>Carbon for an equivalent object.</Text>
         </View>
 
         <Card style={styles.compareCard}>
           {rows.map((row, index) => (
             <BarRow key={`${row.nom}-${index}`} row={row} max={max} color={barColors[Math.min(index, 3)]} />
           ))}
-          <SourceNote text="Sources : Impact CO₂ (ADEME) et règles documentées dans le README." />
+          <SourceNote text="Sources: Impact CO₂ (ADEME) and rules documented in the README." />
         </Card>
 
         <View style={styles.spacer} />
@@ -53,7 +53,7 @@ export default function AlternativesScreen() {
           <View style={styles.bestHead}>
             <GradeBadge grade="A" size={44} outlined />
             <View style={styles.bestHeadText}>
-              <Text style={styles.bestEyebrow}>Meilleur choix</Text>
+              <Text style={styles.bestEyebrow}>Best choice</Text>
               <Text style={styles.bestName}>{impact.meilleurChoix.nom}</Text>
             </View>
             <Text style={styles.bestGain}>−{nombre(impact.gain_pct)} %</Text>
@@ -61,15 +61,15 @@ export default function AlternativesScreen() {
           <Text style={styles.bestDescription}>{impact.meilleurChoix.description}</Text>
           <SourceNote text={impact.meilleurChoix.source} />
           <Button
-            label="Trouver près de moi"
+            label="Find near me"
             variant="lime"
             onPress={choose}
-            accessibilityLabel="Choisir cette alternative et trouver un point près de moi"
+            accessibilityLabel="Choose this alternative and find a point near me"
           />
         </Card>
 
         <View style={styles.spacer} />
-        <SectionTitle>Autres options</SectionTitle>
+        <SectionTitle>Other options</SectionTitle>
         {impact.alternatives
           .filter((item) => item.nom !== impact.meilleurChoix.nom)
           .map((item) => (
@@ -78,13 +78,13 @@ export default function AlternativesScreen() {
 
         <View style={styles.spacer} />
         <Button
-          label="Scanner un autre objet"
+          label="Scan another object"
           variant="outline"
           onPress={() => {
             reset();
             router.push('/');
           }}
-          accessibilityLabel="Revenir au scanner pour un nouvel objet"
+          accessibilityLabel="Return to the scanner for a new object"
         />
       </ScrollView>
     </View>
@@ -109,7 +109,7 @@ function BarRow({
       <View style={styles.barTrack}>
         <View
           accessible
-          accessibilityLabel={`${row.nom} : ${kg(row.co2e_kg)} kilogrammes CO₂e`}
+          accessibilityLabel={`${row.nom}: ${kg(row.co2e_kg)} kilograms CO₂e`}
           style={[
             styles.barFill,
             { width: `${Math.max((row.co2e_kg / max) * 100, 3)}%`, backgroundColor: color },

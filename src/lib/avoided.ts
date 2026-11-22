@@ -9,9 +9,9 @@ export const AVOIDED_RATES = {
 export type AvoidedAction = keyof typeof AVOIDED_RATES;
 
 export const AVOIDED_RULE =
-  'CO₂e évité = CO₂e d’un achat neuf équivalent × taux du geste ' +
-  '(garder 30 %, donner/revendre 85 %, collecte 60 %, seconde main 85 %, à éviter 0 %). ' +
-  'Ces taux sont des hypothèses pédagogiques documentées, pas des mesures.';
+  'Avoided CO₂e = CO₂e of an equivalent new purchase × action rate ' +
+  '(keeping 30%, giving/reselling 85%, collection 60%, second-hand 85%, avoiding 0%). ' +
+  'These rates are documented educational assumptions, not measurements.';
 
 export function avoidedCo2e(co2eNeuf: number, action: AvoidedAction): number {
   return Math.round(co2eNeuf * AVOIDED_RATES[action] * 100) / 100;

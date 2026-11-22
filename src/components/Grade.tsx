@@ -18,7 +18,7 @@ export function GradeBadge({
   return (
     <View
       accessible
-      accessibilityLabel={`Note ${grade}, ${gradeLabels[grade]}`}
+      accessibilityLabel={`Grade ${grade}, ${gradeLabels[grade]}`}
       style={[
         styles.badge,
         { width: size, height: size, backgroundColor: palette.background },
@@ -32,7 +32,7 @@ export function GradeBadge({
 
 export function GradeScale({ current }: { current: Grade }) {
   return (
-    <View accessible accessibilityLabel={`Échelle de A à E, note actuelle ${current}`} style={styles.scale}>
+    <View accessible accessibilityLabel={`Scale from A to E, current grade ${current}`} style={styles.scale}>
       {order.map((grade) => {
         const palette = colors.grade[grade];
         const active = grade === current;

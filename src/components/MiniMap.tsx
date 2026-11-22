@@ -8,7 +8,7 @@ const MAPS_QUERY =
 
 export function MiniMap() {
   return (
-    <View accessible accessibilityLabel="Mini-carte : point de collecte le plus proche" style={styles.map}>
+    <View accessible accessibilityLabel="Mini-map: nearest collection point" style={styles.map}>
       <View style={styles.roadA} />
       <View style={styles.roadB} />
       <View style={styles.roadC} />
@@ -25,19 +25,19 @@ export function CollectionPoint() {
       <MiniMap />
       <View style={styles.pointRow}>
         <View style={styles.pointInfo}>
-          <Text style={styles.place}>Borne la plus proche</Text>
+          <Text style={styles.place}>Nearest collection point</Text>
           <Text style={styles.address}>
-            12 rue de la Récyclerie, Paris 18e · <Text style={styles.distance}>450 m</Text>
+            12 Recycling Lane, London N1 · <Text style={styles.distance}>450 m</Text>
           </Text>
         </View>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Ouvrir l'itinéraire vers le point de collecte"
+          accessibilityLabel="Open directions to the collection point"
           onPress={() => Linking.openURL(MAPS_QUERY)}
           style={({ pressed }) => [styles.itinerary, pressed && styles.pressed]}
         >
           <Navigation size={16} color={colors.paper} strokeWidth={2} />
-          <Text style={styles.itineraryText}>Itinéraire</Text>
+          <Text style={styles.itineraryText}>Directions</Text>
         </Pressable>
       </View>
     </View>

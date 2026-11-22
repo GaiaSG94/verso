@@ -19,7 +19,7 @@ export function ScreenHeader({
       <View style={styles.header}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Retour à l'écran précédent"
+          accessibilityLabel="Back to previous screen"
           onPress={() => router.back()}
           style={styles.iconButton}
         >
@@ -29,7 +29,7 @@ export function ScreenHeader({
         {share ? (
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Partager cette fiche"
+            accessibilityLabel="Share this sheet"
             onPress={onShare}
             style={styles.iconButton}
           >
@@ -50,7 +50,7 @@ export function BottomBar() {
       <View style={styles.bar}>
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel="Ouvrir le scanner"
+          accessibilityLabel="Open scanner"
           accessibilityState={{ selected: pathname === '/' }}
           onPress={() => router.push('/')}
           style={styles.tab}
@@ -60,11 +60,11 @@ export function BottomBar() {
             color={pathname === '/' ? colors.ink : colors.secondary}
             strokeWidth={1.8}
           />
-          <Text style={[styles.tabText, pathname === '/' && styles.tabTextActive]}>Scanner</Text>
+          <Text style={[styles.tabText, pathname === '/' && styles.tabTextActive]}>Scan</Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="Scanner un nouvel objet"
+          accessibilityLabel="Scan a new object"
           onPress={() => router.push('/')}
           style={styles.plus}
         >
@@ -72,7 +72,7 @@ export function BottomBar() {
         </Pressable>
         <Pressable
           accessibilityRole="tab"
-          accessibilityLabel="Ouvrir le journal"
+          accessibilityLabel="Open journal"
           accessibilityState={{ selected: pathname === '/journal' }}
           onPress={() => router.push('/journal')}
           style={styles.tab}

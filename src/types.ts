@@ -1,6 +1,6 @@
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'E';
-export type EtatApparent = 'neuf' | 'usé' | 'abîmé';
-export type ScanMode = 'objet' | 'code-barres' | 'etiquette';
+export type EtatApparent = 'new' | 'worn' | 'damaged';
+export type ScanMode = 'object' | 'barcode' | 'label';
 
 export interface Detection {
   objet: string;
@@ -9,7 +9,7 @@ export interface Detection {
   poids_estime_g: number;
   confiance: number;
   etat_apparent: EtatApparent;
-  origine: 'exemple' | 'photo' | 'code-barres' | 'correction';
+  origine: 'sample' | 'photo' | 'barcode' | 'correction';
   code_barres?: string;
 }
 

@@ -15,24 +15,24 @@ type Action = { key: string; title: string; detail: string; badge?: string };
 const actions: Action[] = [
   {
     key: 'garder',
-    title: 'Le garder plus longtemps',
-    detail: 'Recoudre, détacher : chaque année d’usage en plus divise son impact.',
-    badge: 'Le mieux',
+    title: 'Keep it longer',
+    detail: 'Sew it back up, unpick it: every extra year of use reduces its impact.',
+    badge: 'Best option',
   },
   {
     key: 'donner',
-    title: 'Le donner ou le revendre',
-    detail: 'Ressourcerie, friperie ou plateforme de seconde main.',
+    title: 'Give it away or resell it',
+    detail: 'Reuse center, thrift store or second-hand platform.',
   },
   {
     key: 'deposer',
-    title: 'Le déposer en borne textile',
-    detail: 'Même troué ou taché : il sera trié, réemployé ou recyclé.',
+    title: 'Drop it at a textile collection point',
+    detail: 'Even torn or stained: it will be sorted, reused or recycled.',
   },
   {
     key: 'eviter',
-    title: 'À éviter',
-    detail: 'Ni dans le bac des emballages, ni aux ordures ménagères.',
+    title: 'Avoid',
+    detail: 'Neither in the packaging bin nor in household waste.',
   },
 ];
 
@@ -54,11 +54,11 @@ export default function EndOfLifeScreen() {
 
   return (
     <View style={styles.root}>
-      <ScreenHeader title="Fin de vie" />
+      <ScreenHeader title="End of life" />
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.titleBlock}>
-          <Text style={styles.title}>Que faire de ce {detection.objet.toLowerCase()} ?</Text>
-          <Text style={styles.subtitle}>Du geste le plus utile au moins utile.</Text>
+          <Text style={styles.title}>What to do with this {detection.objet.toLowerCase()}?</Text>
+          <Text style={styles.subtitle}>From the most useful action to the least useful.</Text>
         </View>
 
         <View style={styles.list}>
@@ -75,13 +75,13 @@ export default function EndOfLifeScreen() {
 
         <View style={styles.spacer} />
         <Button
-          label={done ? 'Bon geste enregistré' : 'J’ai fait le bon geste'}
+          label={done ? 'Good deed recorded' : 'I did the right thing'}
           variant="lime"
           onPress={validate}
-          accessibilityLabel="Enregistrer le bon geste dans le journal"
+          accessibilityLabel="Record the good deed in the journal"
         />
         {done ? (
-          <Text style={styles.confirmation}>+{kg(avoided)} kg CO₂e évités.</Text>
+          <Text style={styles.confirmation}>+{kg(avoided)} kg CO₂e avoided.</Text>
         ) : null}
       </ScrollView>
     </View>
@@ -104,7 +104,7 @@ function ActionCard({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${action.title}${selected ? ', sélectionné' : ''}`}
+      accessibilityLabel={`${action.title}${selected ? ', selected' : ''}`}
       onPress={onPress}
       disabled={isBad}
       style={({ pressed }) => [

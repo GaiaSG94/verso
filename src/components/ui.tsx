@@ -21,7 +21,7 @@ export function SectionTitle({ children, right }: { children: ReactNode; right?:
 }
 
 export function SourceNote({ text }: { text: string }) {
-  return <Text style={styles.source}>Estimation moyenne · source : {text}</Text>;
+  return <Text style={styles.source}>Average estimate · source: {text}</Text>;
 }
 
 export function Pill({
