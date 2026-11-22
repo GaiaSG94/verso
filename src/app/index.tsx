@@ -40,6 +40,7 @@ export default function ScannerScreen() {
   const [error, setError] = useState<string | null>(null);
   const [focused, setFocused] = useState(true);
   const cameraRef = useRef<CameraView>(null);
+  const lastCode = useRef<string | null>(null);
   const [permission, requestPermission] = useCameraPermissions();
 
   useFocusEffect(
@@ -72,9 +73,12 @@ export default function ScannerScreen() {
 
   const handleBarcode = useCallback(
     async ({ data }: { data: string }) => {
+      if (lastCode.current === data) return;
+      lastCode.current = data;
       const product = await lookupBarcode(data);
       if (!product) {
-        setError('Produit inconnu : photographiez l’objet à la place.');
+        setMode('objet');
+        setError('Produit inconnu : prenez une photo de l’objet.');
         return;
       }
       const found: Detection = {
