@@ -1,7 +1,9 @@
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import { BookOpen, Zap } from 'lucide-react-native';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Modal,
   Pressable,
   ScrollView,
@@ -16,7 +18,10 @@ import { BottomBar } from '@/components/Navigation';
 import { GradeBadge } from '@/components/Grade';
 import { Button, Pill, SourceNote, TextLink } from '@/components/ui';
 import { useApp } from '@/context/AppContext';
+import { recognizeImage } from '@/lib/api';
+import { lookupBarcode } from '@/lib/barcode';
 import { kg } from '@/lib/format';
+import { resolveImpact } from '@/lib/impact';
 import { colors, font, gradeLabels, radius, space } from '@/theme';
 import type { Detection, ScanMode } from '@/types';
 
@@ -27,15 +32,95 @@ const modes: { key: ScanMode; label: string }[] = [
 ];
 
 export default function ScannerScreen() {
-  const { detection, impact, setDetection } = useApp();
+  const { detection, impact, setDetection, recordScan } = useApp();
   const [mode, setMode] = useState<ScanMode>('objet');
   const [flash, setFlash] = useState(false);
   const [correctionOpen, setCorrectionOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [focused, setFocused] = useState(true);
+  const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
+
+  useFocusEffect(
+    useCallback(() => {
+      setFocused(true);
+      return () => setFocused(false);
+    }, []),
+  );
+
+  const capture = useCallback(async () => {
+    if (busy || !cameraRef.current) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const photo = await cameraRef.current.takePictureAsync({
+        base64: true,
+        quality: 0.6,
+        shutterSound: true,
+      });
+      if (!photo?.base64) throw new Error('no_photo');
+      const found = await recognizeImage(photo.base64);
+      recordScan(found, resolveImpact(found));
+      if (found.confiance < 0.6) setCorrectionOpen(true);
+    } catch {
+      setError('Reconnaissance indisponible. Vérifiez le backend et réessayez.');
+    } finally {
+      setBusy(false);
+    }
+  }, [busy, recordScan]);
+
+  const handleBarcode = useCallback(
+    async ({ data }: { data: string }) => {
+      const product = await lookupBarcode(data);
+      if (!product) {
+        setError('Produit inconnu : photographiez l’objet à la place.');
+        return;
+      }
+      const found: Detection = {
+        objet: product.nom,
+        categorie: product.categorie,
+        matiere_principale: product.matiere_principale,
+        poids_estime_g: product.poids_estime_g,
+        confiance: 1,
+        etat_apparent: 'neuf',
+        origine: 'code-barres',
+        code_barres: product.code,
+      };
+      recordScan(found, resolveImpact(found));
+    },
+    [recordScan],
+  );
 
   return (
     <View style={styles.root}>
       <View style={styles.cameraArea}>
-        <View style={styles.backdrop} />
+        {focused && permission?.granted ? (
+          <CameraView
+            ref={cameraRef}
+            style={styles.backdrop}
+            facing="back"
+            enableTorch={flash}
+            barcodeScannerSettings={
+              mode === 'code-barres'
+                ? { barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128'] }
+                : undefined
+            }
+            onBarcodeScanned={mode === 'code-barres' ? handleBarcode : undefined}
+          />
+        ) : (
+          <View style={styles.backdrop} />
+        )}
+        {permission && !permission.granted ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Autoriser l'accès à la caméra"
+            onPress={requestPermission}
+            style={styles.permissionButton}
+          >
+            <Text style={styles.permissionText}>Autoriser la caméra</Text>
+          </Pressable>
+        ) : null}
         <SafeAreaView edges={['top']} style={styles.topSafe}>
           <View style={styles.topRow}>
             <View style={styles.logo}>
@@ -80,6 +165,17 @@ export default function ScannerScreen() {
         </SafeAreaView>
 
         {detection && impact ? <DetectionFrame detection={detection} /> : null}
+        {busy ? <ActivityIndicator size="large" color={colors.lime} style={styles.busy} /> : null}
+        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Prendre une photo et reconnaître l'objet"
+          onPress={capture}
+          disabled={busy || !permission?.granted}
+          style={styles.shutter}
+        >
+          <View style={styles.shutterInner} />
+        </Pressable>
       </View>
 
       {detection && impact ? (
@@ -243,6 +339,42 @@ const styles = StyleSheet.create({
   br: { bottom: 0, right: 0, borderBottomWidth: 4, borderRightWidth: 4 },
   frameLabel: { position: 'absolute', top: -16, backgroundColor: colors.lime, paddingHorizontal: space.md, paddingVertical: 5, borderRadius: radius.small },
   frameLabelText: { fontFamily: font.semibold, fontSize: 12, color: colors.ink },
+  permissionButton: {
+    position: 'absolute',
+    top: '45%',
+    alignSelf: 'center',
+    minHeight: 52,
+    paddingHorizontal: space.xl,
+    borderRadius: radius.pill,
+    backgroundColor: colors.lime,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionText: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
+  shutter: {
+    position: 'absolute',
+    bottom: 28,
+    alignSelf: 'center',
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 4,
+    borderColor: colors.lime,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shutterInner: { width: 52, height: 52, borderRadius: 26, backgroundColor: colors.lime },
+  busy: { position: 'absolute', top: '55%', alignSelf: 'center' },
+  error: {
+    position: 'absolute',
+    bottom: 108,
+    left: space.lg,
+    right: space.lg,
+    textAlign: 'center',
+    fontFamily: font.body,
+    fontSize: 12,
+    color: colors.paper,
+  },
   sheet: {
     backgroundColor: colors.card,
     borderTopLeftRadius: radius.sheet,

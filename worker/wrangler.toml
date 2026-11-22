@@ -1,0 +1,8 @@
+name = "verso-recognition"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# ANTHROPIC_API_KEY est fourni par wrangler secret put / variable d'environnement.
+# Jamais de valeur dans ce fichier, ni dans le dépôt.
+[vars]
+ANTHROPIC_MODEL = "claude-sonnet-5-5"
