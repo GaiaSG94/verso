@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BottomBar } from '@/components/Navigation';
 import { GradeBadge } from '@/components/Grade';
-import { Button, Pill, SourceNote, TextLink } from '@/components/ui';
+import { Button, SourceNote, TextLink } from '@/components/ui';
 import { useApp } from '@/context/AppContext';
 import { recognizeImage } from '@/lib/api';
 import { lookupBarcode } from '@/lib/barcode';

@@ -1,5 +1,3 @@
-import type { Grade } from '@/types';
-
 export const AVOIDED_RATES = {
   garder: 0.3,
   donner: 0.85,
