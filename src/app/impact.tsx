@@ -38,9 +38,8 @@ export default function ImpactScreen() {
         </Card>
 
         <Card dark style={styles.gradeCard}>
-          <Text style={styles.darkEyebrow}>Impact environnemental</Text>
           <View style={styles.gradeRow}>
-            <GradeBadge grade={impact.grade} size={92} />
+            <GradeBadge grade={impact.grade} size={60} />
             <View style={styles.gradeCopy}>
               <Text style={styles.gradeTitle}>{gradeLabels[impact.grade]}</Text>
               <Text style={styles.gradeSubtitle}>{impact.comparaison}</Text>
@@ -68,16 +67,18 @@ export default function ImpactScreen() {
           <MetricCard
             icon={<Package size={18} color={colors.ink} />}
             label="Matière"
-            value={nombre(matiere_kg * 1000)}
-            unit="g"
-            detail={detection.matiere_principale}
+            value={detection.matiere_principale}
+            unit=""
+            detail={`${nombre(matiere_kg * 1000)} g estimés`}
+            textValue
           />
           <MetricCard
             icon={<Recycle size={18} color={colors.ink} />}
             label="Fin de vie"
-            value="Filière"
-            unit="à suivre"
+            value="Borne textile"
+            unit=""
             detail={impact.impact.fin_de_vie}
+            textValue
           />
         </View>
         <SourceNote text={`${impact.impact.source_co2e} ; ${impact.impact.source_eau}`} />
@@ -90,13 +91,22 @@ export default function ImpactScreen() {
         <SourceNote text={impact.impact.source_co2e} />
 
         <View style={styles.spacer} />
-        <Button
-          label="Comment le jeter"
-          variant="outline"
-          onPress={() => router.push('/fin-de-vie')}
-        />
-        <View style={styles.spacerSmall} />
-        <Button label="Alternatives" onPress={() => router.push('/alternatives')} />
+        <View style={styles.actionsRow}>
+          <View style={styles.actionHalf}>
+            <Button
+              label="Comment le jeter"
+              variant="outline"
+              onPress={() => router.push('/fin-de-vie')}
+              accessibilityLabel="Voir comment jeter cet objet"
+            />
+          </View>
+          <View style={styles.actionHalf}>
+            <Button label="Alternatives" onPress={() => router.push('/alternatives')} />
+          </View>
+        </View>
+        <Text style={styles.footerSource}>
+          Estimation moyenne · source : {impact.impact.source_co2e}
+        </Text>
       </ScrollView>
     </View>
   );
@@ -108,12 +118,14 @@ function MetricCard({
   value,
   unit,
   detail,
+  textValue = false,
 }: {
   icon: ReactNode;
   label: string;
   value: string;
   unit: string;
   detail: string;
+  textValue?: boolean;
 }) {
   return (
     <View style={styles.metric}>
@@ -121,7 +133,7 @@ function MetricCard({
         {icon}
         <Text style={styles.metricLabel}>{label}</Text>
       </View>
-      <Text style={styles.metricValue}>
+      <Text style={[styles.metricValue, textValue && styles.metricValueText]}>
         {value} <Text style={styles.metricUnit}>{unit}</Text>
       </Text>
       <Text style={styles.metricDetail} numberOfLines={2}>
@@ -177,25 +189,27 @@ const styles = StyleSheet.create({
   heroBody: { flex: 1 },
   heroName: { fontFamily: font.title, fontSize: 19, color: colors.ink },
   heroMeta: { fontFamily: font.body, fontSize: 12, color: colors.secondary, marginTop: 4 },
-  gradeCard: { marginTop: space.md },
-  darkEyebrow: { fontFamily: font.medium, fontSize: 11, color: colors.lime, letterSpacing: 1, textTransform: 'uppercase' },
-  gradeRow: { flexDirection: 'row', alignItems: 'center', gap: space.lg, marginTop: space.md },
+  gradeCard: { marginTop: space.md, borderRadius: radius.bigCard },
+  gradeRow: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   gradeCopy: { flex: 1 },
-  gradeTitle: { fontFamily: font.title, fontSize: 20, color: colors.card },
-  gradeSubtitle: { fontFamily: font.body, fontSize: 13, color: '#B9C4BD', marginTop: 4 },
+  gradeTitle: { fontFamily: font.subtitle, fontSize: 20, color: colors.card },
+  gradeSubtitle: { fontFamily: font.body, fontSize: 13, color: colors.softText, marginTop: 4 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.md },
   metric: { width: '47%', backgroundColor: colors.card, borderRadius: radius.card, padding: space.md, minHeight: 132 },
   metricHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   metricLabel: { fontFamily: font.semibold, fontSize: 12, color: colors.secondary },
   metricValue: { fontFamily: font.mono, fontSize: 21, color: colors.ink, marginTop: space.md },
+  metricValueText: { fontFamily: font.subtitle, fontSize: 18 },
   metricUnit: { fontFamily: font.body, fontSize: 12, color: colors.secondary },
   metricDetail: { fontFamily: font.body, fontSize: 11, color: colors.secondary, marginTop: space.sm },
   bar: { flexDirection: 'row', height: 22, borderRadius: 11, overflow: 'hidden' },
-  legend: { marginTop: space.md, gap: space.sm },
-  legendRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontFamily: font.body, fontSize: 12, color: colors.secondary, flex: 1 },
-  legendValue: { fontFamily: font.mono, fontSize: 12, color: colors.ink },
+  legend: { marginTop: space.md, flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  legendRow: { width: '31%', flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendDot: { width: 8, height: 8, borderRadius: 2 },
+  legendText: { fontFamily: font.body, fontSize: 12, color: '#39433D', flex: 1 },
+  legendValue: { fontFamily: font.mono, fontSize: 12, color: '#39433D' },
+  actionsRow: { flexDirection: 'row', gap: 10 },
+  actionHalf: { flex: 1 },
+  footerSource: { fontFamily: font.body, fontSize: 12, color: colors.secondary, textAlign: 'center', marginTop: space.md },
   spacer: { height: space.xl },
-  spacerSmall: { height: space.md },
 });

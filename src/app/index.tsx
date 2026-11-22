@@ -184,19 +184,27 @@ export default function ScannerScreen() {
 
       {detection && impact ? (
         <View style={styles.sheet}>
-          <Text style={styles.eyebrow}>Objet reconnu</Text>
+          <View style={styles.dragHandle} />
+          <View style={styles.sheetHead}>
+            <Text style={styles.eyebrow}>Objet reconnu</Text>
+            <Text style={styles.confidence}>
+              {Math.round(detection.confiance * 100)} % de confiance
+            </Text>
+          </View>
           <Text style={styles.objectName}>{detection.objet}</Text>
           <Text style={styles.meta}>
-            {detection.categorie} · {detection.matiere_principale} · {detection.poids_estime_g} g
+            {detection.categorie} · {detection.matiere_principale} · ~{detection.poids_estime_g} g
           </Text>
           <View style={styles.miniCard}>
-            <GradeBadge grade={impact.grade} size={46} />
+            <GradeBadge grade={impact.grade} size={48} />
             <View style={styles.miniCardBody}>
               <Text style={styles.miniTitle}>{gradeLabels[impact.grade]}</Text>
-              <Text style={styles.miniFigure}>
-                {kg(impact.impact.co2e_kg)} kg CO₂e
-              </Text>
+              <Text style={styles.miniSub}>pour un {detection.categorie.toLowerCase().replace(/s$/, '')}</Text>
               <SourceNote text={impact.impact.source_co2e} />
+            </View>
+            <View style={styles.miniRight}>
+              <Text style={styles.miniFigure}>{kg(impact.impact.co2e_kg)} kg</Text>
+              <Text style={styles.miniUnit}>CO₂e</Text>
             </View>
           </View>
           <Button
@@ -230,16 +238,19 @@ export default function ScannerScreen() {
 
 function DetectionFrame({ detection }: { detection: Detection }) {
   const label = `${detection.objet} · ${detection.matiere_principale.toLowerCase()}`;
+  const confidence = `${Math.round(detection.confiance * 100)} %`;
   return (
     <View accessible accessibilityLabel={`Objet détecté : ${label}`} style={styles.frameWrap}>
+      <View style={styles.frameLabel}>
+        <Text style={styles.frameLabelText}>{label}</Text>
+        <Text style={styles.frameLabelConfidence}>{confidence}</Text>
+      </View>
       <View style={styles.frame}>
         <View style={[styles.corner, styles.tl]} />
         <View style={[styles.corner, styles.tr]} />
         <View style={[styles.corner, styles.bl]} />
         <View style={[styles.corner, styles.br]} />
-      </View>
-      <View style={styles.frameLabel}>
-        <Text style={styles.frameLabelText}>{label}</Text>
+        <View style={styles.scanLine} />
       </View>
     </View>
   );
@@ -310,7 +321,7 @@ const styles = StyleSheet.create({
   topSafe: { position: 'absolute', top: 0, left: 0, right: 0 },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.lg },
   logo: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  logoDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.lime },
+  logoDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.lime },
   logoText: { fontFamily: font.title, fontSize: 22, color: colors.lime },
   topActions: { flexDirection: 'row', gap: space.sm },
   iconButton: {
@@ -330,10 +341,10 @@ const styles = StyleSheet.create({
     padding: 4,
     marginTop: space.lg,
   },
-  mode: { paddingHorizontal: space.md, paddingVertical: space.sm, borderRadius: radius.pill },
-  modeActive: { backgroundColor: colors.lime },
-  modeText: { fontFamily: font.medium, fontSize: 12, color: colors.paper },
-  modeTextActive: { color: colors.ink },
+  mode: { height: 32, paddingHorizontal: 14, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  modeActive: { backgroundColor: colors.paper },
+  modeText: { fontFamily: font.medium, fontSize: 13, color: colors.paper },
+  modeTextActive: { color: colors.ink, fontFamily: font.semibold },
   frameWrap: { position: 'absolute', top: '34%', left: '16%', right: '16%', alignItems: 'center' },
   frame: { width: '100%', aspectRatio: 0.86, position: 'relative' },
   corner: { position: 'absolute', width: 30, height: 30, borderColor: colors.lime },
@@ -341,8 +352,21 @@ const styles = StyleSheet.create({
   tr: { top: 0, right: 0, borderTopWidth: 4, borderRightWidth: 4 },
   bl: { bottom: 0, left: 0, borderBottomWidth: 4, borderLeftWidth: 4 },
   br: { bottom: 0, right: 0, borderBottomWidth: 4, borderRightWidth: 4 },
-  frameLabel: { position: 'absolute', top: -16, backgroundColor: colors.lime, paddingHorizontal: space.md, paddingVertical: 5, borderRadius: radius.small },
-  frameLabelText: { fontFamily: font.semibold, fontSize: 12, color: colors.ink },
+  frameLabel: {
+    position: 'absolute',
+    top: -36,
+    left: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.sm,
+    height: 28,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    backgroundColor: colors.lime,
+  },
+  frameLabelText: { fontFamily: font.semibold, fontSize: 13, color: colors.ink },
+  frameLabelConfidence: { fontFamily: font.mono, fontSize: 12, color: colors.ink },
+  scanLine: { position: 'absolute', left: 20, right: 20, top: '50%', height: 2, backgroundColor: colors.lime, opacity: 0.55 },
   permissionButton: {
     position: 'absolute',
     top: '45%',
@@ -380,21 +404,29 @@ const styles = StyleSheet.create({
     color: colors.paper,
   },
   sheet: {
-    backgroundColor: colors.card,
+    backgroundColor: colors.paper,
     borderTopLeftRadius: radius.sheet,
     borderTopRightRadius: radius.sheet,
-    padding: space.xl,
-    paddingTop: space.lg,
+    paddingHorizontal: space.xl,
+    paddingTop: space.md,
+    paddingBottom: space.xl,
     marginTop: -space.xl,
     zIndex: 3,
+    gap: space.sm,
   },
+  dragHandle: { width: 40, height: 4, borderRadius: 2, backgroundColor: '#C9C5B9', alignSelf: 'center', marginBottom: space.sm },
+  sheetHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   eyebrow: { fontFamily: font.semibold, fontSize: 12, color: colors.secondary, textTransform: 'uppercase', letterSpacing: 1 },
-  objectName: { fontFamily: font.title, fontSize: 24, color: colors.ink, marginTop: 4 },
-  meta: { fontFamily: font.body, fontSize: 13, color: colors.secondary, marginTop: 4 },
-  miniCard: { flexDirection: 'row', gap: space.md, alignItems: 'center', backgroundColor: colors.paper, borderRadius: radius.card, padding: space.md, marginVertical: space.lg },
+  confidence: { fontFamily: font.mono, fontSize: 12, color: colors.secondary },
+  objectName: { fontFamily: font.title, fontSize: 28, color: colors.ink },
+  meta: { fontFamily: font.body, fontSize: 14, color: colors.secondary },
+  miniCard: { flexDirection: 'row', gap: space.md, alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.card, padding: space.md, marginVertical: space.md },
   miniCardBody: { flex: 1 },
-  miniTitle: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
-  miniFigure: { fontFamily: font.mono, fontSize: 20, color: colors.ink, marginTop: 2 },
+  miniTitle: { fontFamily: font.semibold, fontSize: 15, color: colors.ink },
+  miniSub: { fontFamily: font.body, fontSize: 13, color: colors.secondary },
+  miniRight: { alignItems: 'flex-end' },
+  miniFigure: { fontFamily: font.mono, fontSize: 16, color: colors.ink },
+  miniUnit: { fontFamily: font.body, fontSize: 12, color: colors.secondary },
   linkRow: { alignItems: 'center', marginTop: space.md },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(21,32,27,0.5)', justifyContent: 'flex-end' },
   modalCard: { backgroundColor: colors.card, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet, padding: space.xl, gap: space.md },

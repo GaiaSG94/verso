@@ -1,4 +1,4 @@
-import { ChevronLeft, Share2 } from 'lucide-react-native';
+import { BookOpen, ChevronLeft, Plus, ScanLine, Share2 } from 'lucide-react-native';
 import { router, usePathname } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -55,6 +55,11 @@ export function BottomBar() {
           onPress={() => router.push('/')}
           style={styles.tab}
         >
+          <ScanLine
+            size={22}
+            color={pathname === '/' ? colors.ink : colors.secondary}
+            strokeWidth={1.8}
+          />
           <Text style={[styles.tabText, pathname === '/' && styles.tabTextActive]}>Scanner</Text>
         </Pressable>
         <Pressable
@@ -63,7 +68,7 @@ export function BottomBar() {
           onPress={() => router.push('/')}
           style={styles.plus}
         >
-          <Text style={styles.plusText}>+</Text>
+          <Plus size={24} color={colors.lime} strokeWidth={2.2} />
         </Pressable>
         <Pressable
           accessibilityRole="tab"
@@ -72,6 +77,11 @@ export function BottomBar() {
           onPress={() => router.push('/journal')}
           style={styles.tab}
         >
+          <BookOpen
+            size={22}
+            color={pathname === '/journal' ? colors.ink : colors.secondary}
+            strokeWidth={1.8}
+          />
           <Text style={[styles.tabText, pathname === '/journal' && styles.tabTextActive]}>
             Journal
           </Text>
@@ -90,26 +100,33 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.lg,
     paddingVertical: space.md,
   },
-  iconButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  title: { fontFamily: font.title, fontSize: 17, color: colors.ink, flex: 1, textAlign: 'center' },
-  barSafe: { backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.hairline },
-  bar: {
-    height: 64,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: space.xl,
-  },
-  tab: { minWidth: 80, alignItems: 'center', justifyContent: 'center', minHeight: 44 },
-  tabText: { fontFamily: font.medium, fontSize: 13, color: colors.secondary },
-  tabTextActive: { color: colors.ink, fontFamily: font.semibold },
-  plus: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.lime,
+  iconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plusText: { fontFamily: font.title, fontSize: 30, color: colors.ink, lineHeight: 34 },
+  title: { fontFamily: font.medium, fontSize: 15, color: colors.ink, flex: 1, textAlign: 'center' },
+  barSafe: { backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: colors.navBorder },
+  bar: {
+    height: 66,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 40,
+  },
+  tab: { minWidth: 64, alignItems: 'center', justifyContent: 'center', minHeight: 44, gap: 4 },
+  tabText: { fontFamily: font.medium, fontSize: 12, color: colors.secondary },
+  tabTextActive: { color: colors.ink, fontFamily: font.semibold },
+  plus: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  plusText: { color: colors.lime },
 });

@@ -8,21 +8,24 @@ const order: Grade[] = ['A', 'B', 'C', 'D', 'E'];
 export function GradeBadge({
   grade,
   size = 44,
-  withLabel = false,
+  outlined = false,
 }: {
   grade: Grade;
   size?: number;
-  withLabel?: boolean;
+  outlined?: boolean;
 }) {
   const palette = colors.grade[grade];
   return (
     <View
       accessible
       accessibilityLabel={`Note ${grade}, ${gradeLabels[grade]}`}
-      style={[styles.badge, { width: size, height: size, backgroundColor: palette.background }]}
+      style={[
+        styles.badge,
+        { width: size, height: size, backgroundColor: palette.background },
+        outlined && styles.badgeOutlined,
+      ]}
     >
       <Text style={[styles.letter, { color: palette.text, fontSize: size * 0.55 }]}>{grade}</Text>
-      {withLabel ? <Text style={styles.label}>{gradeLabels[grade]}</Text> : null}
     </View>
   );
 }
@@ -32,17 +35,20 @@ export function GradeScale({ current }: { current: Grade }) {
     <View accessible accessibilityLabel={`Échelle de A à E, note actuelle ${current}`} style={styles.scale}>
       {order.map((grade) => {
         const palette = colors.grade[grade];
+        const active = grade === current;
         return (
-          <View key={grade} style={styles.step}>
-            <View
-              style={[
-                styles.dot,
-                { backgroundColor: palette.background },
-                grade === current && styles.dotCurrent,
-              ]}
-            >
-              <Text style={[styles.dotText, { color: palette.text }]}>{grade}</Text>
-            </View>
+          <View
+            key={grade}
+            style={[
+              styles.step,
+              { backgroundColor: palette.background },
+              !active && styles.stepMuted,
+              active && styles.stepCurrent,
+            ]}
+          >
+            <Text style={[styles.stepText, { color: palette.text }, active && styles.stepTextCurrent]}>
+              {grade}
+            </Text>
           </View>
         );
       })}
@@ -56,23 +62,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  badgeOutlined: {
+    borderWidth: 1.5,
+    borderColor: colors.paper,
+  },
   letter: { fontFamily: font.title, lineHeight: 60 },
-  label: { fontFamily: font.body, fontSize: 11, color: colors.secondary },
-  scale: { flexDirection: 'row', alignItems: 'center', marginTop: space.xl },
-  step: { flex: 1, alignItems: 'center' },
-  dot: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+  scale: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: space.xl },
+  step: {
+    flex: 1,
+    height: 28,
+    borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dotCurrent: {
-    borderWidth: 3,
-    borderColor: colors.paper,
+  stepMuted: { opacity: 0.55 },
+  stepCurrent: {
     outlineWidth: 2,
     outlineColor: colors.paper,
-    transform: [{ scale: 1.22 }],
+    outlineStyle: 'solid',
   },
-  dotText: { fontFamily: font.title, fontSize: 15 },
+  stepText: { fontFamily: font.medium, fontSize: 12 },
+  stepTextCurrent: { fontFamily: font.title, fontSize: 13 },
 });

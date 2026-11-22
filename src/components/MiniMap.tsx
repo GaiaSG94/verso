@@ -23,17 +23,23 @@ export function CollectionPoint() {
   return (
     <View style={styles.wrap}>
       <MiniMap />
-      <Text style={styles.place}>Point le plus proche</Text>
-      <Text style={styles.address}>12 rue de la Récyclerie, Paris 18e · 450 m</Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Ouvrir l'itinéraire vers le point de collecte"
-        onPress={() => Linking.openURL(MAPS_QUERY)}
-        style={({ pressed }) => [styles.itinerary, pressed && styles.pressed]}
-      >
-        <Navigation size={16} color={colors.ink} strokeWidth={2} />
-        <Text style={styles.itineraryText}>Itinéraire</Text>
-      </Pressable>
+      <View style={styles.pointRow}>
+        <View style={styles.pointInfo}>
+          <Text style={styles.place}>Borne la plus proche</Text>
+          <Text style={styles.address}>
+            12 rue de la Récyclerie, Paris 18e · <Text style={styles.distance}>450 m</Text>
+          </Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Ouvrir l'itinéraire vers le point de collecte"
+          onPress={() => Linking.openURL(MAPS_QUERY)}
+          style={({ pressed }) => [styles.itinerary, pressed && styles.pressed]}
+        >
+          <Navigation size={16} color={colors.paper} strokeWidth={2} />
+          <Text style={styles.itineraryText}>Itinéraire</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -43,7 +49,7 @@ const styles = StyleSheet.create({
   map: {
     height: 110,
     borderRadius: radius.small,
-    backgroundColor: '#E9EEE7',
+    backgroundColor: '#E9E6DD',
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
@@ -60,20 +66,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 2,
   },
-  place: { fontFamily: font.semibold, fontSize: 14, color: colors.ink, marginTop: space.md },
+  pointRow: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.md },
+  pointInfo: { flex: 1 },
+  place: { fontFamily: font.semibold, fontSize: 13, color: colors.ink },
   address: { fontFamily: font.body, fontSize: 12, color: colors.secondary, marginTop: 2 },
+  distance: { fontFamily: font.mono, fontSize: 12, color: colors.secondary },
   itinerary: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.sm,
-    alignSelf: 'flex-start',
+    alignSelf: 'center',
     minHeight: 44,
-    marginTop: space.sm,
     paddingHorizontal: space.md,
     borderRadius: radius.pill,
-    borderWidth: 1.5,
-    borderColor: colors.ink,
+    backgroundColor: colors.ink,
   },
-  itineraryText: { fontFamily: font.semibold, fontSize: 13, color: colors.ink },
+  itineraryText: { fontFamily: font.semibold, fontSize: 13, color: colors.paper },
   pressed: { opacity: 0.7 },
 });

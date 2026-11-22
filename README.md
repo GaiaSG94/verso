@@ -119,6 +119,8 @@ Tous regroupés dans `src/constants/equivalences.ts` :
 
 Fond papier `#F4F2EC`, cartes `#FFFFFF`, encre `#15201B`, secondaire `#56605A`, citron `#C6F05E` (toujours avec texte encre). Notes : A `#1E6B52`, B `#3F7F4C`, C `#E3B341`, D `#E58A3A`, E `#B5432C`. Barre du cycle de vie : `#15201B`, `#4F6B5D`, `#93A89C`, `#C9D3CC`, `#E3B341`. Alerte : fond `#F7E3DD`, titre `#8A2E1C`. Icônes au trait (Lucide), aucun emoji, aucun dégradé. Boutons pilule 52 px, zones tactiles ≥ 44 px, `accessibilityLabel` sur les boutons icône.
 
+La structure des cinq écrans (Scanner, Résultat, Tri, Alternatives, Journal) et la barre d'onglets reprennent les artboards validés dans le chat Claude de référence (`Main`, `Resultat`, `Tri`, `Alternatives`, `Journal`). Seules les valeurs chiffrées diffèrent : elles sont remplacées par les données sourcées décrites plus haut, et la note est calculée par quintiles.
+
 ## Arborescence
 
 ```

@@ -6,6 +6,10 @@ export const colors = {
   lime: '#C6F05E',
   camera: '#0E1512',
   hairline: '#E5E3DC',
+  neutral: '#E7E4DA',
+  track: '#EEEBE3',
+  navBorder: '#E3DFD4',
+  softText: '#B9C2BC',
   lifecycle: ['#15201B', '#4F6B5D', '#93A89C', '#C9D3CC', '#E3B341'] as const,
   alert: { background: '#F7E3DD', title: '#8A2E1C' },
   grade: {

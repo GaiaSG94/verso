@@ -1,9 +1,9 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronDown } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { BottomBar } from '@/components/Navigation';
-import { Card, SectionTitle } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { kmVoiture } from '@/constants/equivalences';
 import { useApp } from '@/context/AppContext';
 import { dateFr, kg, moisFr, nombre } from '@/lib/format';
@@ -28,7 +28,6 @@ export default function JournalScreen() {
   const [monthOffset, setMonthOffset] = useState(0);
   const month = new Date();
   month.setMonth(month.getMonth() + monthOffset);
-  const monthIso = month.toISOString();
 
   const monthly = entries.filter((item) => {
     const date = new Date(item.date);
@@ -38,87 +37,94 @@ export default function JournalScreen() {
   const goodDeeds = monthly.filter((item) => item.bonGeste).length;
   const weekly = weeklyTotals(monthly, month);
   const currentWeek = Math.min(Math.floor((new Date().getDate() - 1) / 7), 3);
+  const maxWeek = Math.max(...weekly, 0.1);
 
   return (
     <View style={styles.root}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <Text style={styles.title}>Journal</Text>
-          <View style={styles.monthSelector}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Mois précédent"
-              onPress={() => setMonthOffset((v) => v - 1)}
-              style={styles.monthArrow}
-            >
-              <ChevronLeft size={16} color={colors.ink} strokeWidth={2} />
-            </Pressable>
-            <Text style={styles.monthText}>{moisFr(monthIso)}</Text>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Mois suivant"
-              onPress={() => setMonthOffset((v) => v + 1)}
-              style={styles.monthArrow}
-            >
-              <ChevronRight size={16} color={colors.ink} strokeWidth={2} />
-            </Pressable>
-          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Changer de mois"
+            onPress={() => setMonthOffset((value) => value + 1)}
+            style={styles.monthSelector}
+          >
+            <Text style={styles.monthText}>{moisFr(month.toISOString())}</Text>
+            <ChevronDown size={14} color={colors.ink} strokeWidth={2} />
+          </Pressable>
         </View>
 
         <Card dark style={styles.hero}>
           <Text style={styles.heroLabel}>CO₂e évité ce mois-ci</Text>
-          <Text style={styles.heroValue}>{kg(avoided)} kg</Text>
-          <Text style={styles.heroEquivalent}>≈ {nombre(kmVoiture(avoided))} km en voiture</Text>
-          <View style={styles.weekChart}>
-            {weekly.map((value, index) => (
-              <View key={index} style={styles.weekColumn}>
-                <View
-                  accessible
-                  accessibilityLabel={`Semaine ${index + 1} : ${kg(value)} kilogrammes évités`}
-                  style={[
-                    styles.weekBar,
-                    { height: 14 + value * 8 },
-                    monthOffset === 0 && index === currentWeek && styles.weekBarCurrent,
-                  ]}
-                />
-              </View>
-            ))}
+          <View style={styles.heroFigure}>
+            <Text style={styles.heroValue}>{kg(avoided, 1)}</Text>
+            <Text style={styles.heroUnit}>kg</Text>
           </View>
-          <Text style={styles.weekLegend}>S1 · S2 · S3 · S4 (en cours)</Text>
+          <Text style={styles.heroEquivalent}>
+            ≈ {nombre(kmVoiture(avoided))} km en voiture non parcourus
+          </Text>
+          <View style={styles.weekChart}>
+            {weekly.map((value, index) => {
+              const active = monthOffset === 0 && index === currentWeek;
+              return (
+                <View key={index} style={styles.weekColumn}>
+                  <View
+                    accessible
+                    accessibilityLabel={`Semaine ${index + 1} : ${kg(value)} kilogrammes évités`}
+                    style={[
+                      styles.weekBar,
+                      { height: Math.max((value / maxWeek) * 66, 8) },
+                      active ? styles.weekBarCurrent : styles.weekBarPast,
+                    ]}
+                  />
+                  <Text style={[styles.weekLabel, active && styles.weekLabelCurrent]}>S{index + 1}</Text>
+                </View>
+              );
+            })}
+          </View>
         </Card>
 
         <View style={styles.counters}>
           <Card style={styles.counter}>
             <Text style={styles.counterValue}>{nombre(entries.length)}</Text>
-            <Text style={styles.counterLabel}>Objets scannés</Text>
+            <Text style={styles.counterLabel}>objets scannés</Text>
           </Card>
           <Card style={styles.counter}>
             <Text style={styles.counterValue}>{nombre(goodDeeds)}</Text>
-            <Text style={styles.counterLabel}>Bons gestes</Text>
+            <Text style={styles.counterLabel}>bons gestes</Text>
           </Card>
         </View>
 
         <View style={styles.spacer} />
-        <SectionTitle>Derniers scans</SectionTitle>
-        {entries.map((entry) => (
-          <Card key={entry.id} style={styles.entry}>
-            <View style={[styles.gradeDot, { backgroundColor: colors.grade[entry.grade].background }]}>
-              <Text style={[styles.gradeLetter, { color: colors.grade[entry.grade].text }]}>
-                {entry.grade}
-              </Text>
-            </View>
-            <View style={styles.entryBody}>
-              <Text style={styles.entryName}>{entry.objet}</Text>
-              <Text style={styles.entryAction}>{entry.action}</Text>
-              <Text style={styles.entryDate}>{dateFr(entry.date)} · {entry.categorie}</Text>
-            </View>
-            {entry.bonGeste ? (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>Bon geste</Text>
+        <Text style={styles.sectionTitle}>Derniers scans</Text>
+        <Card style={styles.scanList}>
+          {entries.map((entry, index) => (
+            <View
+              key={entry.id}
+              style={[styles.scanRow, index === entries.length - 1 && styles.scanRowLast]}
+            >
+              <View
+                style={[styles.gradeDot, { backgroundColor: colors.grade[entry.grade].background }]}
+              >
+                <Text style={[styles.gradeLetter, { color: colors.grade[entry.grade].text }]}>
+                  {entry.grade}
+                </Text>
               </View>
-            ) : null}
-          </Card>
-        ))}
+              <View style={styles.entryBody}>
+                <Text style={styles.entryName}>{entry.objet}</Text>
+                <Text style={styles.entryAction}>
+                  {entry.action} · {dateFr(entry.date)}
+                </Text>
+              </View>
+              {entry.bonGeste ? (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>Bon geste</Text>
+                </View>
+              ) : null}
+            </View>
+          ))}
+        </Card>
       </ScrollView>
       <BottomBar />
     </View>
@@ -127,33 +133,53 @@ export default function JournalScreen() {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.paper },
-  content: { padding: space.lg, paddingBottom: space.xxl },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.lg, gap: space.sm },
-  title: { fontFamily: font.title, fontSize: 26, color: colors.ink },
-  monthSelector: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: radius.pill, paddingHorizontal: 4, paddingVertical: 2 },
-  monthArrow: { width: 30, height: 36, alignItems: 'center', justifyContent: 'center' },
-  monthText: { fontFamily: font.medium, fontSize: 11, color: colors.ink, textTransform: 'capitalize', minWidth: 88, textAlign: 'center' },
-  hero: { padding: space.xl },
-  heroLabel: { fontFamily: font.medium, fontSize: 12, color: '#C6D0C9' },
-  heroValue: { fontFamily: font.mono, fontSize: 40, color: colors.lime, marginTop: space.sm },
-  heroEquivalent: { fontFamily: font.body, fontSize: 12, color: '#C6D0C9', marginTop: space.sm },
-  weekChart: { flexDirection: 'row', alignItems: 'flex-end', gap: space.md, height: 70, marginTop: space.lg },
-  weekColumn: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' },
-  weekBar: { width: '70%', maxWidth: 26, backgroundColor: colors.lifecycle[3], borderRadius: 6 },
+  content: { paddingHorizontal: space.xl, paddingTop: space.lg, paddingBottom: space.xl },
+  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: space.lg },
+  title: { fontFamily: font.title, fontSize: 28, color: colors.ink },
+  monthSelector: {
+    height: 36,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+    backgroundColor: colors.card,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  monthText: { fontFamily: font.medium, fontSize: 13, color: colors.ink, textTransform: 'capitalize' },
+  hero: { borderRadius: radius.bigCard, gap: space.sm },
+  heroLabel: { fontFamily: font.body, fontSize: 13, color: colors.softText },
+  heroFigure: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
+  heroValue: { fontFamily: font.mono, fontSize: 44, color: colors.lime, letterSpacing: -1 },
+  heroUnit: { fontFamily: font.semibold, fontSize: 18, color: colors.paper },
+  heroEquivalent: { fontFamily: font.body, fontSize: 13, color: colors.softText },
+  weekChart: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, height: 92, marginTop: space.md },
+  weekColumn: { flex: 1, height: '100%', alignItems: 'stretch', justifyContent: 'flex-end', gap: 6 },
+  weekBar: { borderRadius: 6, minHeight: 8 },
+  weekBarPast: { backgroundColor: colors.lifecycle[1] },
   weekBarCurrent: { backgroundColor: colors.lime },
-  weekLegend: { fontFamily: font.body, fontSize: 10, color: '#C6D0C9', marginTop: space.sm, textAlign: 'center' },
-  counters: { flexDirection: 'row', gap: space.md, marginTop: space.md },
-  counter: { flex: 1, alignItems: 'center' },
-  counterValue: { fontFamily: font.mono, fontSize: 26, color: colors.ink },
-  counterLabel: { fontFamily: font.body, fontSize: 12, color: colors.secondary, marginTop: 4 },
+  weekLabel: { fontFamily: font.body, fontSize: 11, color: colors.softText, textAlign: 'center' },
+  weekLabelCurrent: { fontFamily: font.semibold, color: colors.paper },
+  counters: { flexDirection: 'row', gap: 10, marginTop: space.md },
+  counter: { flex: 1, gap: 2 },
+  counterValue: { fontFamily: font.mono, fontSize: 22, color: colors.ink },
+  counterLabel: { fontFamily: font.body, fontSize: 12, color: colors.secondary },
   spacer: { height: space.lg },
-  entry: { flexDirection: 'row', alignItems: 'center', gap: space.md, marginBottom: space.md },
-  gradeDot: { width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  gradeLetter: { fontFamily: font.title, fontSize: 16 },
+  sectionTitle: { fontFamily: font.subtitle, fontSize: 16, color: colors.ink, marginBottom: space.md },
+  scanList: { paddingHorizontal: space.md, paddingVertical: 0, overflow: 'hidden' },
+  scanRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    paddingVertical: space.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECE9E0',
+  },
+  scanRowLast: { borderBottomWidth: 0 },
+  gradeDot: { width: 32, height: 32, borderRadius: 9, alignItems: 'center', justifyContent: 'center' },
+  gradeLetter: { fontFamily: font.title, fontSize: 15 },
   entryBody: { flex: 1 },
   entryName: { fontFamily: font.semibold, fontSize: 14, color: colors.ink },
-  entryAction: { fontFamily: font.body, fontSize: 11, color: colors.secondary, marginTop: 2 },
-  entryDate: { fontFamily: font.body, fontSize: 10, color: colors.secondary, marginTop: 2, textTransform: 'capitalize' },
-  badge: { backgroundColor: colors.lime, borderRadius: radius.pill, paddingHorizontal: space.sm, paddingVertical: 4 },
-  badgeText: { fontFamily: font.semibold, fontSize: 10, color: colors.ink },
+  entryAction: { fontFamily: font.body, fontSize: 12, color: colors.secondary, marginTop: 1 },
+  badge: { backgroundColor: colors.lime, borderRadius: 5, paddingHorizontal: 7, paddingVertical: 3 },
+  badgeText: { fontFamily: font.semibold, fontSize: 11, color: colors.ink },
 });
