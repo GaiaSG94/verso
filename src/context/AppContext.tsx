@@ -1,9 +1,10 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { sampleDetection } from '@/mock/sample';
 import { kg } from '@/lib/format';
 import { resolveImpact } from '@/lib/impact';
+import { loadEntries, saveEntries } from '@/lib/storage';
 import type { Detection, ImpactView, ScanEntry } from '@/types';
 
 interface AppContextValue {
@@ -36,6 +37,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [detection, setDetectionState] = useState<Detection | null>(sampleDetection);
   const [impact, setImpact] = useState<ImpactView | null>(seedImpact);
   const [entries, setEntries] = useState<ScanEntry[]>([seedEntry]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    loadEntries()
+      .then((saved) => {
+        if (saved.length > 0) setEntries(saved);
+        setHydrated(true);
+      })
+      .catch(() => setHydrated(true));
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) void saveEntries(entries);
+  }, [entries, hydrated]);
 
   const setDetection = useCallback((next: Detection) => {
     setDetectionState(next);

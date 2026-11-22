@@ -4,14 +4,15 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { GradeBadge } from '@/components/Grade';
 import { ScreenHeader } from '@/components/Navigation';
-import { Button, Card, SectionTitle, SourceNote } from '@/components/ui';
+import { Button, Card, SectionTitle, SourceNote, TextLink } from '@/components/ui';
 import { useApp } from '@/context/AppContext';
+import { avoidedCo2e } from '@/lib/avoided';
 import { kg, nombre } from '@/lib/format';
 import { colors, font, radius, space } from '@/theme';
 import type { Alternative } from '@/types';
 
 export default function AlternativesScreen() {
-  const { detection, impact, reset } = useApp();
+  const { detection, impact, reset, recordGoodDeed } = useApp();
   if (!detection || !impact) return null;
 
   const current = impact.impact.co2e_kg;
@@ -56,6 +57,17 @@ export default function AlternativesScreen() {
             onPress={() => router.push('/fin-de-vie')}
             accessibilityLabel="Trouver une option près de chez moi"
           />
+          <View style={styles.chooseRow}>
+            <TextLink
+              label="Choisir cette alternative"
+              onPress={() =>
+                recordGoodDeed(
+                  `Alternative : ${impact.meilleurChoix.nom}`,
+                  avoidedCo2e(impact.impact.co2e_kg, 'secondeMain'),
+                )
+              }
+            />
+          </View>
         </Card>
 
         <View style={styles.spacer} />
@@ -147,6 +159,7 @@ const styles = StyleSheet.create({
   bestGain: { fontFamily: font.mono, fontSize: 16, color: colors.lime, marginTop: 4 },
   bestDescription: { fontFamily: font.body, fontSize: 13, color: '#C6D0C9', marginTop: space.lg },
   bestFigure: { fontFamily: font.mono, fontSize: 22, color: colors.lime, marginTop: space.md },
+  chooseRow: { marginTop: space.md, alignItems: 'flex-start' },
   compact: { flexDirection: 'row', alignItems: 'center', gap: space.md, marginBottom: space.md },
   compactIcon: { width: 38, height: 38, borderRadius: radius.small, backgroundColor: colors.lime, alignItems: 'center', justifyContent: 'center' },
   compactBody: { flex: 1 },

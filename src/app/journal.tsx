@@ -8,8 +8,20 @@ import { kmVoiture } from '@/constants/equivalences';
 import { useApp } from '@/context/AppContext';
 import { dateFr, kg, moisFr, nombre } from '@/lib/format';
 import { colors, font, radius, space } from '@/theme';
+import type { ScanEntry } from '@/types';
 
-const weekly = [2.1, 3.4, 1.2, 4.8];
+function weeklyTotals(entries: ScanEntry[], month: Date): number[] {
+  const buckets = [0, 0, 0, 0];
+  for (const entry of entries) {
+    const date = new Date(entry.date);
+    if (date.getMonth() !== month.getMonth() || date.getFullYear() !== month.getFullYear()) {
+      continue;
+    }
+    const index = Math.min(Math.floor((date.getDate() - 1) / 7), 3);
+    buckets[index] += entry.co2eEviteKg;
+  }
+  return buckets;
+}
 
 export default function JournalScreen() {
   const { entries } = useApp();
@@ -18,8 +30,14 @@ export default function JournalScreen() {
   month.setMonth(month.getMonth() + monthOffset);
   const monthIso = month.toISOString();
 
-  const avoided = entries.reduce((sum, item) => sum + item.co2eEviteKg, 0);
-  const goodDeeds = entries.filter((item) => item.bonGeste).length;
+  const monthly = entries.filter((item) => {
+    const date = new Date(item.date);
+    return date.getMonth() === month.getMonth() && date.getFullYear() === month.getFullYear();
+  });
+  const avoided = monthly.reduce((sum, item) => sum + item.co2eEviteKg, 0);
+  const goodDeeds = monthly.filter((item) => item.bonGeste).length;
+  const weekly = weeklyTotals(monthly, month);
+  const currentWeek = Math.min(Math.floor((new Date().getDate() - 1) / 7), 3);
 
   return (
     <View style={styles.root}>
@@ -60,7 +78,7 @@ export default function JournalScreen() {
                   style={[
                     styles.weekBar,
                     { height: 14 + value * 8 },
-                    index === weekly.length - 1 && styles.weekBarCurrent,
+                    monthOffset === 0 && index === currentWeek && styles.weekBarCurrent,
                   ]}
                 />
               </View>
