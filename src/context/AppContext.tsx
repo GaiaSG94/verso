@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import { sampleDetection, sampleImpact } from '@/mock/sample';
+import { sampleDetection } from '@/mock/sample';
 import { kg } from '@/lib/format';
+import { resolveImpact } from '@/lib/impact';
 import type { Detection, ImpactView, ScanEntry } from '@/types';
 
 interface AppContextValue {
@@ -17,13 +18,15 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+const seedImpact = resolveImpact(sampleDetection);
+
 const seedEntry: ScanEntry = {
   id: 'exemple-1',
   date: new Date().toISOString(),
   objet: sampleDetection.objet,
   categorie: sampleDetection.categorie,
-  grade: sampleImpact.grade,
-  co2e_kg: sampleImpact.impact.co2e_kg,
+  grade: seedImpact.grade,
+  co2e_kg: seedImpact.impact.co2e_kg,
   action: 'Scan de démonstration',
   bonGeste: false,
   co2eEviteKg: 0,
@@ -31,12 +34,12 @@ const seedEntry: ScanEntry = {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [detection, setDetectionState] = useState<Detection | null>(sampleDetection);
-  const [impact, setImpact] = useState<ImpactView | null>(sampleImpact);
+  const [impact, setImpact] = useState<ImpactView | null>(seedImpact);
   const [entries, setEntries] = useState<ScanEntry[]>([seedEntry]);
 
   const setDetection = useCallback((next: Detection) => {
     setDetectionState(next);
-    setImpact(sampleImpact);
+    setImpact(resolveImpact(next));
   }, []);
 
   const recordScan = useCallback((next: Detection, view: ImpactView) => {

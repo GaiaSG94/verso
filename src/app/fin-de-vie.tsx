@@ -8,6 +8,7 @@ import { ScreenHeader } from '@/components/Navigation';
 import { Button, Pill } from '@/components/ui';
 import { useApp } from '@/context/AppContext';
 import { kg } from '@/lib/format';
+import { actionAvoided } from '@/lib/impact';
 import { colors, font, radius, space } from '@/theme';
 
 type Action = { key: string; title: string; detail: string; badge?: string };
@@ -44,9 +45,7 @@ export default function EndOfLifeScreen() {
   if (!detection || !impact) return null;
 
   const active = actions.find((item) => item.key === selected);
-  const avoided = selected === 'garder' || selected === 'donner' || selected === 'deposer'
-    ? Math.round(impact.impact.co2e_kg * 0.8 * 100) / 100
-    : 0;
+  const avoided = actionAvoided(active?.title ?? '', impact.impact.co2e_kg);
 
   const validate = () => {
     if (!active) return;
